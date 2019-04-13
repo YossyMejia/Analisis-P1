@@ -7,10 +7,8 @@
 
 import * as fs from 'fs';
 // import { complex as fft } from 'fft';
-      //npm i wav-encoder en terminal 
 import * as WavEncoder from 'wav-encoder';
 // import { default as ft } from 'fourier-transform';
-     //npm i wav-decoder
 import * as WavDecoder from 'wav-decoder';
 
 const readFile = (filepath: string) => {
@@ -24,7 +22,7 @@ const readFile = (filepath: string) => {
   });
 };
 
-readFile("C:\\Users\\Jossy Mejia\\Documents\\5 semestre\\Analisis+\\P1").then((buffer) => {
+readFile("C:\\Users\\ticas\\Desktop\\TEC\\l Semestre - 2019\\Analisis de Algoritmos\\Proyectos\\EUPHORIA.wav").then((buffer) => {
   return WavDecoder.decode(buffer);
 }).then(function(audioData) {
   console.log("ampliando 30%");
@@ -53,7 +51,7 @@ readFile("C:\\Users\\Jossy Mejia\\Documents\\5 semestre\\Analisis+\\P1").then((b
 
   console.log("writing...");
   WavEncoder.encode(audioData).then((buffer: any) => {
-    fs.writeFileSync("C:\\Users\\Jossy Mejia\\Documents\\5 semestre\\Analisis+\\P1\\newsulky.wav", new buffer(buffer));
+    fs.writeFileSync("C:\\Users\\ticas\\Desktop\\TEC\\l Semestre - 2019\\Analisis de Algoritmos\\Proyectos\\newsulky.wav", new Buffer(buffer));
   });
 
 });

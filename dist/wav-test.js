@@ -5,12 +5,19 @@
  * Date: 04/10/2019
  * Description: testing wav encoder
  */
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var fs = require("fs");
+var fs = __importStar(require("fs"));
 // import { complex as fft } from 'fft';
-var WavEncoder = require("wav-encoder");
+var WavEncoder = __importStar(require("wav-encoder"));
 // import { default as ft } from 'fourier-transform';
-var WavDecoder = require("wav-decoder");
+var WavDecoder = __importStar(require("wav-decoder"));
 var readFile = function (filepath) {
     return new Promise(function (resolve, reject) {
         fs.readFile(filepath, function (err, buffer) {
@@ -21,7 +28,7 @@ var readFile = function (filepath) {
         });
     });
 };
-readFile("C:\\Users\\Jossy Mejia\\Documents\\5 semestre\\Analisis+\\P1").then(function (buffer) {
+readFile("C:\\Users\\ticas\\Desktop\\TEC\\l Semestre - 2019\\Analisis de Algoritmos\\Proyectos\\EUPHORIA.wav").then(function (buffer) {
     return WavDecoder.decode(buffer);
 }).then(function (audioData) {
     console.log("ampliando 30%");
@@ -44,7 +51,7 @@ readFile("C:\\Users\\Jossy Mejia\\Documents\\5 semestre\\Analisis+\\P1").then(fu
     }
     console.log("writing...");
     WavEncoder.encode(audioData).then(function (buffer) {
-        fs.writeFileSync("C:\\Users\\Jossy Mejia\\Documents\\5 semestre\\Analisis+\\P1\\newsulky.wav", new buffer(buffer));
+        fs.writeFileSync("C:\\Users\\ticas\\Desktop\\TEC\\l Semestre - 2019\\Analisis de Algoritmos\\Proyectos\\newsulky.wav", new Buffer(buffer));
     });
 });
 //# sourceMappingURL=wav-test.js.map
