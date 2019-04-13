@@ -2,7 +2,7 @@
   "name": "algoritmos",
   "version": "1.0.0",
   "description": "Examples library",
-  "main": "dist/main.js",
+  "main": "dist/wav-test.js",
   "types": "",
   "scripts": {
     "build": "tsc",
