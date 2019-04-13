@@ -1,0 +1,32 @@
+{
+  "name": "algoritmos",
+  "version": "1.0.0",
+  "description": "Examples library",
+  "main": "dist/main.js",
+  "types": "",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "lint": "tslint -c tslint.json -p tsconfig.json -t stylish"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "algoritmos",
+    "ejecucion",
+    "rendimiento"
+  ],
+  "devDependencies": {
+    "ts-node": "7.0.1",
+    "tslint": "^5.14.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-config-standard": "^8.0.1",
+    "tslint-react": "^3.6.0",
+    "typescript": "3.2.2"
+  },
+  "dependencies": {},
+  "author": "yochi-fabian",
+  "license": "MIT"
+}
