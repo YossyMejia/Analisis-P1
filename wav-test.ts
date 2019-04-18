@@ -11,6 +11,18 @@ import * as WavEncoder from 'wav-encoder';
 // import { default as ft } from 'fourier-transform';
 import * as WavDecoder from 'wav-decoder';
 
+/*process.argv.forEach((val,index)=>{
+  console.log(`${index}:${val}`)
+})*/
+var my:number[][]=[[],[]];
+
+function mostrar(m:number[][]){
+  for(var ii=0;ii<10;ii++){
+    console.log(m[0][ii]);
+    console.log(m[1][ii]);
+  }
+}
+
 const readFile = (filepath: string) => {
   return new Promise((resolve, reject) => {
     fs.readFile(filepath, (err, buffer) => {
@@ -28,10 +40,9 @@ readFile("C:\\Users\\ticas\\Desktop\\TEC\\l Semestre - 2019\\Analisis de Algorit
   console.log("ampliando 30%");
   const size = 20000;
 
-  for(var i=0; i<10; i++) {
-    console.log(audioData.channelData[0][i]);
-    console.log(audioData.channelData[1][i]);
-    console.log('*******************');
+  for(var i=0; i<audioData.channelData[0].length; i++) {
+    my[0].push(audioData.channelData[0][i]);
+    my[1].push(audioData.channelData[1][i]);
   }
 
   // for(var i=0; i<audioData.channelData[0].length; i++) {
@@ -49,9 +60,10 @@ readFile("C:\\Users\\ticas\\Desktop\\TEC\\l Semestre - 2019\\Analisis de Algorit
   }
 
 
-  console.log("writing...");
+  /*console.log("writing...");
   WavEncoder.encode(audioData).then((buffer: any) => {
     fs.writeFileSync("C:\\Users\\ticas\\Desktop\\TEC\\l Semestre - 2019\\Analisis de Algoritmos\\Proyectos\\newsulky.wav", new Buffer(buffer));
-  });
+  });*/
 
+  mostrar(my);
 });
