@@ -1,19 +1,23 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Filename: wav-test.ts
  * Author: rnunez
  * Date: 04/10/2019
  * Description: testing wav encoder
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-var fs = require("fs");
+//npm install "@types/node" --save-dev
+const fs = require("fs");
 // import { complex as fft } from 'fft';
-var WavEncoder = require("wav-encoder");
+//npm i wav-encoder en terminal 
+const WavEncoder = require("wav-encoder");
 // import { default as ft } from 'fourier-transform';
-var WavDecoder = require("wav-decoder");
-var readFile = function (filepath) {
-    return new Promise(function (resolve, reject) {
-        fs.readFile(filepath, function (err, buffer) {
+//npm i wav-decoder
+const WavDecoder = require("wav-decoder");
+console.log("hola");
+const readFile = (filepath) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(filepath, (err, buffer) => {
             if (err) {
                 return reject(err);
             }
@@ -21,12 +25,12 @@ var readFile = function (filepath) {
         });
     });
 };
-readFile("C:\\Users\\Jossy Mejia\\Documents\\5 semestre\\Analisis+\\P1").then(function (buffer) {
+readFile("C:\\Users\\Jossy Mejia\\Documents\\5 semestre\\Analisis+\\P1\\Hunger.wav").then((buffer) => {
     return WavDecoder.decode(buffer);
 }).then(function (audioData) {
     console.log("ampliando 30%");
-    var size = 20000;
-    for (var i = 0; i < 10; i++) {
+    const size = 20000;
+    for (var i = 0; i < 25; i++) {
         console.log(audioData.channelData[0][i]);
         console.log(audioData.channelData[1][i]);
         console.log('*******************');
@@ -43,7 +47,7 @@ readFile("C:\\Users\\Jossy Mejia\\Documents\\5 semestre\\Analisis+\\P1").then(fu
         audioData.channelData[0][i + 44100 * 6] = audioData.channelData[0][i];
     }
     console.log("writing...");
-    WavEncoder.encode(audioData).then(function (buffer) {
+    WavEncoder.encode(audioData).then((buffer) => {
         fs.writeFileSync("C:\\Users\\Jossy Mejia\\Documents\\5 semestre\\Analisis+\\P1\\newsulky.wav", new buffer(buffer));
     });
 });

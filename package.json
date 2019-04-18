@@ -2,11 +2,11 @@
   "name": "algoritmos",
   "version": "1.0.0",
   "description": "Examples library",
-  "main": "dist/main.js",
+  "main": "dist/wav-test.js",
   "types": "",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/main.js",
+    "start": "node dist/wav-test.js",
     "lint": "tslint -c tslint.json -p tsconfig.json -t stylish"
   },
   "repository": {
@@ -28,6 +28,7 @@
     "typescript": "3.2.2"
   },
   "dependencies": {
+    "@types/node": "^7.10.5",
     "fft": "0.2.1",
     "fourier-transform": "1.1.2",
     "jsmidgen": "0.1.5",

@@ -4,7 +4,7 @@
  * Date: 04/10/2019
  * Description: testing wav encoder
  */
-
+      //npm install "@types/node" --save-dev
 import * as fs from 'fs';
 // import { complex as fft } from 'fft';
       //npm i wav-encoder en terminal 
@@ -13,6 +13,7 @@ import * as WavEncoder from 'wav-encoder';
      //npm i wav-decoder
 import * as WavDecoder from 'wav-decoder';
 
+console.log("hola");
 const readFile = (filepath: string) => {
   return new Promise((resolve, reject) => {
     fs.readFile(filepath, (err, buffer) => {
@@ -24,13 +25,13 @@ const readFile = (filepath: string) => {
   });
 };
 
-readFile("C:\\Users\\Jossy Mejia\\Documents\\5 semestre\\Analisis+\\P1").then((buffer) => {
+readFile("C:\\Users\\Jossy Mejia\\Documents\\5 semestre\\Analisis+\\P1\\Hunger.wav").then((buffer) => {
   return WavDecoder.decode(buffer);
 }).then(function(audioData) {
   console.log("ampliando 30%");
   const size = 20000;
 
-  for(var i=0; i<10; i++) {
+  for(var i=0; i<25; i++) {
     console.log(audioData.channelData[0][i]);
     console.log(audioData.channelData[1][i]);
     console.log('*******************');
