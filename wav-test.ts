@@ -163,7 +163,7 @@ import { type } from 'os';
         }
         
         //Lecutra de el sonido de pocos segundos y almacenandola en dos listas donde cada lista es el canal izq o derecho
-        readFile("sb-35.wav").then((buffer) => {
+        readFile("sf12db55hz.wav").then((buffer) => {
           return WavDecoder.decode(buffer);
         }).then(function(audioData) {
           var tamanno = audioData.channelData[0].length;

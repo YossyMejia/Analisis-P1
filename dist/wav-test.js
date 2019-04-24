@@ -1,11 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Filename: wav-test.ts
- * Author: rnunez
- * Date: 04/10/2019
- * Description: testing wav encoder
- */
 //npm install "@types/node" --save-dev
 const fs = require("fs");
 // import { default as ft } from 'fourier-transform';
@@ -151,7 +145,7 @@ readFile("b.wav").then((buffer) => {
         right.push(audioData.channelData[0][i]);
     }
     //Lecutra de el sonido de pocos segundos y almacenandola en dos listas donde cada lista es el canal izq o derecho
-    readFile("sb-35.wav").then((buffer) => {
+    readFile("sf12db55hz.wav").then((buffer) => {
         return WavDecoder.decode(buffer);
     }).then(function (audioData) {
         var tamanno = audioData.channelData[0].length;
