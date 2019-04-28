@@ -3,8 +3,10 @@ export class Segundo{
     private subidas:number;
     private bajadas:number;
     private llanos:number;
+    private segundo:number;
 
-    public constructor(tasaDeVariacion:number,subidas:number,bajadas:number,llanos:number){
+    public constructor(segundo:number,tasaDeVariacion:number,subidas:number,bajadas:number,llanos:number){
+        this.segundo = segundo;
         this.tasaDeVariacion=tasaDeVariacion;
         this.subidas = subidas;
         this.bajadas = bajadas;
@@ -25,5 +27,9 @@ export class Segundo{
 
     public getLlanos():number{
         return this.llanos;
+    }
+
+    public getSegundos():number{
+        return this.segundo;
     }
 }

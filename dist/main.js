@@ -11,9 +11,12 @@ var rigthS1 = [];
 var leftS1 = [];
 var rigthS2 = [];
 var leftS2 = [];
-var hashSubidas = new Map();
-var hashLlanos = new Map();
-var hashBajadas = new Map();
+var hashSubidasS1 = new Map();
+var hashLlanosS1 = new Map();
+var hashBajadasS1 = new Map();
+var hashSubidasS2 = new Map();
+var hashLlanosS2 = new Map();
+var hashBajadasS2 = new Map();
 function cargarCanciones(filepath, rigth, left) {
     var content = fs.readFileSync(filepath);
     var wav = WavDecoder.decode.sync(content);
@@ -43,17 +46,29 @@ function mostrar(m) {
     }
 }
 function getRandom(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+    return (Math.floor(Math.random() * (max - min) + min) / 100);
 }
+//Funcion que inicializa los hash para que tengan 4 keys 0,25,0,50,0,75 y 1 en los 3 distintos hash
 function iniciarHash() {
     var porcentaje = 0.25;
-    var arreglo = [];
     for (let i = 0; i < 4; i++) {
-        hashSubidas.set(porcentaje, arreglo);
-        hashLlanos.set(porcentaje, arreglo);
-        hashBajadas.set(porcentaje, arreglo);
+        hashSubidasS1.set(porcentaje, []);
+        hashLlanosS1.set(porcentaje, []);
+        hashBajadasS1.set(porcentaje, []);
+        hashSubidasS2.set(porcentaje, []);
+        hashLlanosS2.set(porcentaje, []);
+        hashBajadasS2.set(porcentaje, []);
         porcentaje += 0.25;
     }
+}
+//Funcion que limpia los hash 
+function limpiarHash() {
+    hashBajadasS1.clear();
+    hashLlanosS1.clear();
+    hashSubidasS1.clear();
+    hashBajadasS2.clear();
+    hashLlanosS2.clear();
+    hashSubidasS2.clear();
 }
 function mapear(sucesiones) {
     var map = {};
@@ -67,14 +82,24 @@ function mapear(sucesiones) {
     }
     return map;
 }
+//Funcion que recive un porcentaje y lo redondea a 0.25,0.50,0.75 o 1
 function redondear(porcentaje) {
-    var porcentajeRedondeado = (Math.round(porcentaje * 4) / 4).toFixed(2);
-    if (porcentajeRedondeado < porcentaje) {
-        porcentajeRedondeado += 0.25;
+    if (porcentaje <= 0.25) {
+        return 0.25;
     }
-    return porcentajeRedondeado;
+    else if (porcentaje > 0.25 && porcentaje <= 0.50) {
+        return 0.50;
+    }
+    else if (porcentaje > 0.50 && porcentaje <= 0.75) {
+        return 0.75;
+    }
+    else if (porcentaje > 0.75) {
+        return 1;
+    }
 }
-function estructurarInformacion(segundito) {
+//Funcion que recive un objeto como parametro, luego busca el procentaje de subidas, bajadas y llanos e inserta el objeto con su 
+//porcentaje correspondiente
+function estructurarInformacion(segundito, hashBajadas, hashSubidas, hashLlanos) {
     var formasTotales = segundito.getBajadas() + segundito.getLlanos() + segundito.getSubida();
     var porcentajeBajadas = segundito.getBajadas() / formasTotales;
     var porcentajeLlanos = segundito.getLlanos() / formasTotales;
@@ -82,8 +107,17 @@ function estructurarInformacion(segundito) {
     porcentajeBajadas = redondear(porcentajeBajadas);
     porcentajeLlanos = redondear(porcentajeLlanos);
     porcentajeSubidas = redondear(porcentajeSubidas);
+    var arregloBajadas = hashBajadas.get(porcentajeBajadas);
+    arregloBajadas.push(segundito);
+    hashBajadas.set(porcentajeBajadas, arregloBajadas);
+    var arregloSubidas = hashSubidas.get(porcentajeSubidas);
+    arregloSubidas.push(segundito);
+    hashSubidas.set(porcentajeSubidas, arregloSubidas);
+    var arregloLlanos = hashLlanos.get(porcentajeLlanos);
+    arregloLlanos.push(segundito);
+    hashLlanos.set(porcentajeLlanos, arregloLlanos);
 }
-function sucesiones(cancionCD, cancionCI) {
+function sucesiones(cancionCD, cancionCI, hash1, hash2, hash3) {
     var punto = 11;
     var valor1 = 0;
     var valor2 = 0;
@@ -101,7 +135,8 @@ function sucesiones(cancionCD, cancionCI) {
         if (samples % 4000 == 0) {
             samples = 1;
             segundo += 1;
-            estructurarInformacion(new Segundo_1.Segundo(Math.round(tasaDeVariacionPorSegundo), subida, bajada, llano));
+            var segundito = new Segundo_1.Segundo(segundo, Math.round(tasaDeVariacionPorSegundo), subida, bajada, llano);
+            estructurarInformacion(segundito, hash1, hash2, hash3);
             //console.log("Segundo: ",segundo," subidas: ",subida," llanos: ",llano," bajada: ",bajada," tasa de variacion total: ",tasaDeVariacionPorSegundo);
             subida = llano = bajada = tasaDeVariacionPorSegundo = 0;
         }
@@ -125,8 +160,12 @@ function comparar(n1, n2) {
     return n1 - n2;
 }
 function matchSegundos() {
-    sucesiones(rigthS1, leftS1);
-    sucesiones(rigthS2, leftS2);
+    for (let i = 0; i < 6; i++) {
+        var randomSubidas = getRandom(0, 100);
+        var randomllanos = getRandom(0, 100);
+        var randomBajadas = getRandom(0, 100);
+        //aqui buscar objetos guardarlos en listas luego hacer interseccion con obj.segundos como referencia 
+    }
     /*
     var mapS1:{[k:number]:number[]}=mapear(sucesionS1);
     var listaDeS:number[][]=[];var listaEncoder:number[]=[];
@@ -176,17 +215,14 @@ function funcionSeleccionada() {
             console.log("Funcion mt");
             break;
         case "umt":
-            var porcentaje = 0.26;
-            var porcentajeRndString = (Math.round(porcentaje * 4) / 4).toFixed(2);
-            var porcentajeRnd = porcentajeRndString;
-            if (porcentajeRnd < porcentaje) {
-                porcentajeRnd += 0, 25;
-            }
-            console.log(porcentajeRnd);
             console.log("Funcion umt");
             console.log("------------------------");
             iniciarHash();
+            sucesiones(rigthS1, leftS1, hashBajadasS1, hashSubidasS1, hashLlanosS1);
+            sucesiones(rigthS2, leftS2, hashBajadasS2, hashSubidasS2, hashLlanosS2);
+            console.log(hashBajadasS1, hashSubidasS1, hashLlanosS1);
             matchSegundos();
+            limpiarHash();
             console.log("------------------------");
             break;
         case "dj":

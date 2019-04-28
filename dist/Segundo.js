@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Segundo {
-    constructor(tasaDeVariacion, subidas, bajadas, llanos) {
+    constructor(segundo, tasaDeVariacion, subidas, bajadas, llanos) {
+        this.segundo = segundo;
         this.tasaDeVariacion = tasaDeVariacion;
         this.subidas = subidas;
         this.bajadas = bajadas;
@@ -18,6 +19,9 @@ class Segundo {
     }
     getLlanos() {
         return this.llanos;
+    }
+    getSegundos() {
+        return this.segundo;
     }
 }
 exports.Segundo = Segundo;
