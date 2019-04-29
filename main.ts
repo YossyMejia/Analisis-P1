@@ -131,6 +131,7 @@ function estructurarInformacion(segundito:Segundo,hashBajadas:Map<number,Segundo
     hashLlanos.set(porcentajeLlanos,arregloLlanos);
 }
 
+//DARLE VUELTA A LOS IF*************
 function sucesiones(cancionCD:number[],cancionCI:number[],hash1:Map<number,Segundo[]>,hash2:Map<number,Segundo[]>,hash3:Map<number,Segundo[]>){
     var punto:number=11;var valor1:number=0;var valor2:number=0;
     var tamanno:number=cancionCD.length-1;
@@ -153,9 +154,9 @@ function sucesiones(cancionCD:number[],cancionCI:number[],hash1:Map<number,Segun
         }
         else{
             tasaDeVariacionPorSample = valor1-valor2;
-            if(tasaDeVariacionPorSample>0.01000000)
+            if(tasaDeVariacionPorSample>0.01)
                 subida++;
-            else if(tasaDeVariacionPorSample<-0.01000000)
+            else if(tasaDeVariacionPorSample<-0.01)
                 bajada++;
             else
                 llano++;
@@ -168,17 +169,33 @@ function sucesiones(cancionCD:number[],cancionCI:number[],hash1:Map<number,Segun
     }
 }
 
-function comparar(n1:number,n2:number){
-    return n1-n2;
+function comparar(n1:Segundo,n2:Segundo){
+    return n1.getSegundos()-n2.getSegundos();
 }
 
-function matchSegundos(){
-    for(let i=0;i<6;i++){
-        var randomSubidas = getRandom(0,100);
-        var randomllanos = getRandom(0,100);
-        var randomBajadas = getRandom(0,100);
-            //aqui buscar objetos guardarlos en listas luego hacer interseccion con obj.segundos como referencia 
+function matchSegundos(hashBajadas:Map<number,Segundo[]>,hashSubidas:Map<number,Segundo[]>,hashLlanos:Map<number,Segundo[]>):Segundo[]{
+    var listasDelistas:Segundo[][] = [];
+    var interseccion:Segundo[] = [];
+    for(let i=0;i<1000;i++){
+        var listaDeMatch:Segundo[][] = [];
+        var randomSubidas = redondear(getRandom(0,100));
+        var randomllanos = redondear(getRandom(0,100));
+        var randomBajadas = redondear(getRandom(0,100));
+        listaDeMatch.push(hashSubidas.get(randomSubidas));
+        listaDeMatch.push(hashLlanos.get(randomllanos));
+        listaDeMatch.push(hashBajadas.get(randomBajadas));
+        interseccion = intersection(listaDeMatch[0],listaDeMatch[1]);
+        interseccion = intersection(interseccion,listaDeMatch[2]);
+        listasDelistas.push(interseccion);
     }
+    interseccion = [];
+    for(let m=0;m<listasDelistas.length;m++){
+        if(listasDelistas[m].length>0){
+            interseccion = intersection(interseccion,listasDelistas[m]);
+        }
+    }
+    console.log(interseccion);
+    return interseccion;
     /*
     var mapS1:{[k:number]:number[]}=mapear(sucesionS1);
     var listaDeS:number[][]=[];var listaEncoder:number[]=[];
@@ -205,13 +222,35 @@ function matchSegundos(){
     //generarCancion(listaEncoder); */
 }
 
-function generarCancion(listaEncoder:number[]){
+function intersection (array1: Segundo[], array2: Segundo[]): Segundo[] {
+    if(array1.length>0&&array2.length>0){
+        let result: Segundo[] = [];
+        for (let i = 0; i < array1.length; i++) {
+            for (let j = 0; j < array2.length; j++) {
+                if (array1[i].getSegundos() === array2[j].getSegundos() && result.indexOf(array1[i]) === -1) {
+                    result.push(array1[i]);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    else{
+        if(array1.length>array2.length)
+            return array1;
+        else
+            return array2;
+    }
+}
+
+
+function generarCancion(listaEncoder:Segundo[]){
     listaEncoder.sort(comparar);
     var tempCD:number[]=[];
     var tempCI:number[]=[];
     for(let pos in listaEncoder){
-        var inicio=(listaEncoder[pos]-1)*44100;
-        var final=(listaEncoder[pos])*44100
+        var inicio=(listaEncoder[pos].getSegundos()-1)*44100;
+        var final=(listaEncoder[pos].getSegundos())*44100
         for(inicio;inicio<=final;inicio++){
             tempCD.push(rigthS1[inicio]);
             tempCI.push(leftS1[inicio]);
@@ -236,8 +275,9 @@ function funcionSeleccionada(){
             iniciarHash();
             sucesiones(rigthS1,leftS1,hashBajadasS1,hashSubidasS1,hashLlanosS1);
             sucesiones(rigthS2,leftS2,hashBajadasS2,hashSubidasS2,hashLlanosS2);
-            console.log(hashBajadasS1,hashSubidasS1,hashLlanosS1);
-            matchSegundos();
+            var segundosMatch:Segundo[] = matchSegundos(hashBajadasS1,hashSubidasS1,hashLlanosS1);
+            matchSegundos(hashBajadasS2,hashSubidasS2,hashLlanosS2);
+            generarCancion(segundosMatch);
             limpiarHash();
             console.log("------------------------");
             break;
