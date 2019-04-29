@@ -28,7 +28,6 @@ function cargarCanciones(filepath: string,rigth:number[],left:number[]){
         left.push(wav.channelData[1][i]);
     } 
 }
-
 function cargarTodo(){
     if(parametros[0]!="dj"){
         cargarCanciones(parametros[1],rigthS1,leftS1);
@@ -39,18 +38,8 @@ function cargarTodo(){
     }
     funcionSeleccionada();
 }
-
 cargarTodo();
 
-function mostrar(m:number[]){
-    var left:string="";
-    var rigth:string="";
-    for(var ii=0;ii<99;ii=ii+11){
-      console.log(m[ii]);
-      console.log(m[ii]) 
-      console.log("------------------------");
-    }
-}  
 
 function getRandom(min:number,max:number):number{
     return (Math.floor(Math.random()*(max-min)+min)/100);
@@ -79,18 +68,35 @@ function limpiarHash(){
     hashLlanosS2.clear();
     hashSubidasS2.clear();
 }
-
-function mapear(sucesiones:Segundo[]):{[k:number]:number[]}{
-    var map:{[k:number]:number[]}={};
-    for(var indice=0;indice<sucesiones.length;indice++){
-        if(map[sucesiones[indice].getTasa()]==null){
-            map[sucesiones[indice].getTasa()]=[indice+1];
-        }else{
-            map[sucesiones[indice].getTasa()].push(indice+1);
-        }
+//Funcion que recibe un arreglo de arreglos y hace interseccion de todos sus elementos
+function interseccionMultiple(array:any):any{
+    var interseccion:Segundo[] = [];
+    for(let i=0;i<array.length;i++){
+        interseccion = intersection(interseccion,array[i]);
     }
-   
-    return map; 
+    return interseccion;
+}
+
+//Recibe dos arreglos y retorna un arreglo que contiene el conjunto interseccion de ambos
+function intersection (array1: Segundo[], array2: Segundo[]): Segundo[] {
+    if(array1.length>0&&array2.length>0){
+        let result: Segundo[] = [];
+        for (let i = 0; i < array1.length; i++) {
+            for (let j = 0; j < array2.length; j++) {
+                if (array1[i].getSegundos() === array2[j].getSegundos() && result.indexOf(array1[i]) === -1) {
+                    result.push(array1[i]);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    else{
+        if(array1.length>array2.length)
+            return array1;
+        else
+            return array2;
+    }
 }
 
 //Funcion que recive un porcentaje y lo redondea a 0.25,0.50,0.75 o 1
@@ -109,30 +115,27 @@ function redondear(porcentaje:number):number{
     }
 }
 
-//Funcion que recive un objeto como parametro, luego busca el procentaje de subidas, bajadas y llanos e inserta el objeto con su 
-//porcentaje correspondiente
-function estructurarInformacion(segundito:Segundo,hashBajadas:Map<number,Segundo[]>,hashSubidas:Map<number,Segundo[]>,hashLlanos:Map<number,Segundo[]>){
-    var formasTotales = segundito.getBajadas()+segundito.getLlanos()+segundito.getSubida();
-    var porcentajeBajadas = segundito.getBajadas()/formasTotales;
-    var porcentajeLlanos = segundito.getLlanos()/formasTotales;
-    var porcentajeSubidas = segundito.getSubida()/formasTotales;
-    
-    porcentajeBajadas = redondear(porcentajeBajadas);
-    porcentajeLlanos = redondear(porcentajeLlanos);
-    porcentajeSubidas = redondear(porcentajeSubidas);
-    var arregloBajadas:Segundo[] = hashBajadas.get(porcentajeBajadas);
+//Guarda el objeto que recibe como parametro en la lista correspondiente segun su porcentaje
+function guardarEnHash(porcentaje:number,segundito:Segundo,hash:Map<any,any>){
+    var arregloBajadas:Segundo[] = hash.get(porcentaje);
     arregloBajadas.push(segundito);
-    hashBajadas.set(porcentajeBajadas,arregloBajadas);
-   var arregloSubidas:Segundo[] = hashSubidas.get(porcentajeSubidas);
-    arregloSubidas.push(segundito);
-    hashSubidas.set(porcentajeSubidas,arregloSubidas);
-    var arregloLlanos:Segundo[] = hashLlanos.get(porcentajeLlanos);
-    arregloLlanos.push(segundito);
-    hashLlanos.set(porcentajeLlanos,arregloLlanos);
+    hash.set(porcentaje,arregloBajadas);
+}
+
+//Funcion que recive un objeto como parametro, luego busca el procentaje de subidas, bajadas y llanos y llama una funcion para que guarde
+// los datos en los hash como corresponda
+function estructurarInformacion(segundito:Segundo,hashBajadas:Map<any,any>,hashSubidas:Map<any,any>,hashLlanos:Map<any,any>){
+    var formasTotales = segundito.getBajadas()+segundito.getLlanos()+segundito.getSubida();
+    var porcentajeBajadas = redondear(segundito.getBajadas()/formasTotales);
+    guardarEnHash(porcentajeBajadas,segundito,hashBajadas);
+    var porcentajeLlanos = redondear(segundito.getLlanos()/formasTotales);
+    guardarEnHash(porcentajeLlanos,segundito,hashLlanos);
+    var porcentajeSubidas = redondear(segundito.getSubida()/formasTotales);
+    guardarEnHash(porcentajeSubidas,segundito,hashSubidas);
 }
 
 //DARLE VUELTA A LOS IF*************
-function sucesiones(cancionCD:number[],cancionCI:number[],hash1:Map<number,Segundo[]>,hash2:Map<number,Segundo[]>,hash3:Map<number,Segundo[]>){
+function sucesiones(cancionCD:number[],cancionCI:number[],hash1:Map<any,any>,hash2:Map<any,any>,hash3:Map<any,any>){
     var punto:number=11;var valor1:number=0;var valor2:number=0;
     var tamanno:number=cancionCD.length-1;
 
@@ -173,75 +176,41 @@ function comparar(n1:Segundo,n2:Segundo){
     return n1.getSegundos()-n2.getSegundos();
 }
 
-function matchSegundos(hashBajadas:Map<number,Segundo[]>,hashSubidas:Map<number,Segundo[]>,hashLlanos:Map<number,Segundo[]>):Segundo[]{
+//Funcion que obtiene la lista de un hash segun su key
+function obtenerLista(hash:Map<any,any>,key:number):Segundo[]{
+    return hash.get(key);
+}
+
+
+function matchSegundos():Segundo[]{
     var listasDelistas:Segundo[][] = [];
     var interseccion:Segundo[] = [];
-    for(let i=0;i<1000;i++){
-        var listaDeMatch:Segundo[][] = [];
-        var randomSubidas = redondear(getRandom(0,100));
-        var randomllanos = redondear(getRandom(0,100));
-        var randomBajadas = redondear(getRandom(0,100));
-        listaDeMatch.push(hashSubidas.get(randomSubidas));
-        listaDeMatch.push(hashLlanos.get(randomllanos));
-        listaDeMatch.push(hashBajadas.get(randomBajadas));
-        interseccion = intersection(listaDeMatch[0],listaDeMatch[1]);
-        interseccion = intersection(interseccion,listaDeMatch[2]);
-        listasDelistas.push(interseccion);
+    for(let i=0;i<10;i++){
+        var listaDeMatchS1:Segundo[][] = [];
+        var listaDeMatchS2:Segundo[][] = [];
+        var random = redondear(getRandom(0,100));
+        var random2 = redondear(getRandom(0,100));
+        var random3 = redondear(getRandom(0,100));
+        listaDeMatchS1.push(obtenerLista(hashSubidasS1,random)); 
+        listaDeMatchS1.push(obtenerLista(hashLlanosS1,random2)); 
+        listaDeMatchS1.push(obtenerLista(hashBajadasS1,random3));
+        listaDeMatchS2.push(obtenerLista(hashSubidasS2,random));
+        listaDeMatchS2.push(obtenerLista(hashLlanosS2,random2));
+        listaDeMatchS2.push(obtenerLista(hashBajadasS2,random3));
+        listaDeMatchS1 = interseccionMultiple(listaDeMatchS1);
+        listaDeMatchS2 = interseccionMultiple(listaDeMatchS2);
+         
+
+        console.log("****iNICIO******");
+        console.log(listaDeMatchS1); //[1,2,....y] de s1
+        console.log("****S2******"); //[1,2] de s2 
+        console.log(listaDeMatchS2);
+        console.log("****FIN******");
+        //listasDelistas.push(interseccion);
     }
-    interseccion = [];
-    for(let m=0;m<listasDelistas.length;m++){
-        if(listasDelistas[m].length>0){
-            interseccion = intersection(interseccion,listasDelistas[m]);
-        }
-    }
-    console.log(interseccion);
     return interseccion;
-    /*
-    var mapS1:{[k:number]:number[]}=mapear(sucesionS1);
-    var listaDeS:number[][]=[];var listaEncoder:number[]=[];
-
-    for(var sg in sucesionS2){
-        listaDeS.push([]);
-        for(var variacion=sucesionS2[sg].getTasa()-70;variacion<=sucesionS2[sg].getTasa()+70;variacion++){
-            if(mapS1[variacion]!=null){
-                var listaTmp:number[]=mapS1[variacion];
-                var contTemp:number=0;
-                for(let seg in listaTmp){
-                    if(Math.abs(sucesionS2[sg].getSubida()-sucesionS1[listaTmp[seg]-1].getSubida())<=25){contTemp++;}
-                    if(Math.abs(sucesionS2[sg].getBajadas()-sucesionS1[listaTmp[seg]-1].getBajadas())<=25){contTemp++;}
-                    if(Math.abs(sucesionS2[sg].getLlanos()-sucesionS1[listaTmp[seg]-1].getLlanos())<=25){contTemp++;}                   
-                    if(contTemp>=2){listaDeS[sg].push(listaTmp[seg]);listaEncoder.push(listaTmp[seg])}     
-                    contTemp=0;               
-                }
-            }
-        }
-    }
-    //console.log(sucesionS2);
-    //console.log(mapS1);
-    //console.log(listaDeS);
-    //generarCancion(listaEncoder); */
 }
 
-function intersection (array1: Segundo[], array2: Segundo[]): Segundo[] {
-    if(array1.length>0&&array2.length>0){
-        let result: Segundo[] = [];
-        for (let i = 0; i < array1.length; i++) {
-            for (let j = 0; j < array2.length; j++) {
-                if (array1[i].getSegundos() === array2[j].getSegundos() && result.indexOf(array1[i]) === -1) {
-                    result.push(array1[i]);
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-    else{
-        if(array1.length>array2.length)
-            return array1;
-        else
-            return array2;
-    }
-}
 
 
 function generarCancion(listaEncoder:Segundo[]){
@@ -275,8 +244,7 @@ function funcionSeleccionada(){
             iniciarHash();
             sucesiones(rigthS1,leftS1,hashBajadasS1,hashSubidasS1,hashLlanosS1);
             sucesiones(rigthS2,leftS2,hashBajadasS2,hashSubidasS2,hashLlanosS2);
-            var segundosMatch:Segundo[] = matchSegundos(hashBajadasS1,hashSubidasS1,hashLlanosS1);
-            matchSegundos(hashBajadasS2,hashSubidasS2,hashLlanosS2);
+            var segundosMatch:Segundo[] = matchSegundos();
             generarCancion(segundosMatch);
             limpiarHash();
             console.log("------------------------");

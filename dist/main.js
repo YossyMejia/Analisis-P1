@@ -36,15 +36,6 @@ function cargarTodo() {
     funcionSeleccionada();
 }
 cargarTodo();
-function mostrar(m) {
-    var left = "";
-    var rigth = "";
-    for (var ii = 0; ii < 99; ii = ii + 11) {
-        console.log(m[ii]);
-        console.log(m[ii]);
-        console.log("------------------------");
-    }
-}
 function getRandom(min, max) {
     return (Math.floor(Math.random() * (max - min) + min) / 100);
 }
@@ -70,17 +61,33 @@ function limpiarHash() {
     hashLlanosS2.clear();
     hashSubidasS2.clear();
 }
-function mapear(sucesiones) {
-    var map = {};
-    for (var indice = 0; indice < sucesiones.length; indice++) {
-        if (map[sucesiones[indice].getTasa()] == null) {
-            map[sucesiones[indice].getTasa()] = [indice + 1];
-        }
-        else {
-            map[sucesiones[indice].getTasa()].push(indice + 1);
-        }
+function interseccionMultiple(array) {
+    var interseccion = [];
+    for (let i = 0; i < array.length; i++) {
+        interseccion = intersection(interseccion, array[i]);
     }
-    return map;
+    return interseccion;
+}
+//Recibe dos arreglos y retorna un arreglo que contiene el conjunto interseccion de ambos
+function intersection(array1, array2) {
+    if (array1.length > 0 && array2.length > 0) {
+        let result = [];
+        for (let i = 0; i < array1.length; i++) {
+            for (let j = 0; j < array2.length; j++) {
+                if (array1[i].getSegundos() === array2[j].getSegundos() && result.indexOf(array1[i]) === -1) {
+                    result.push(array1[i]);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+    else {
+        if (array1.length > array2.length)
+            return array1;
+        else
+            return array2;
+    }
 }
 //Funcion que recive un porcentaje y lo redondea a 0.25,0.50,0.75 o 1
 function redondear(porcentaje) {
@@ -97,25 +104,22 @@ function redondear(porcentaje) {
         return 1;
     }
 }
-//Funcion que recive un objeto como parametro, luego busca el procentaje de subidas, bajadas y llanos e inserta el objeto con su 
-//porcentaje correspondiente
+//Guarda el objeto que recibe como parametro en la lista correspondiente segun su porcentaje
+function guardarEnHash(porcentaje, segundito, hash) {
+    var arregloBajadas = hash.get(porcentaje);
+    arregloBajadas.push(segundito);
+    hash.set(porcentaje, arregloBajadas);
+}
+//Funcion que recive un objeto como parametro, luego busca el procentaje de subidas, bajadas y llanos y llama una funcion para que guarde
+// los datos en los hash como corresponda
 function estructurarInformacion(segundito, hashBajadas, hashSubidas, hashLlanos) {
     var formasTotales = segundito.getBajadas() + segundito.getLlanos() + segundito.getSubida();
-    var porcentajeBajadas = segundito.getBajadas() / formasTotales;
-    var porcentajeLlanos = segundito.getLlanos() / formasTotales;
-    var porcentajeSubidas = segundito.getSubida() / formasTotales;
-    porcentajeBajadas = redondear(porcentajeBajadas);
-    porcentajeLlanos = redondear(porcentajeLlanos);
-    porcentajeSubidas = redondear(porcentajeSubidas);
-    var arregloBajadas = hashBajadas.get(porcentajeBajadas);
-    arregloBajadas.push(segundito);
-    hashBajadas.set(porcentajeBajadas, arregloBajadas);
-    var arregloSubidas = hashSubidas.get(porcentajeSubidas);
-    arregloSubidas.push(segundito);
-    hashSubidas.set(porcentajeSubidas, arregloSubidas);
-    var arregloLlanos = hashLlanos.get(porcentajeLlanos);
-    arregloLlanos.push(segundito);
-    hashLlanos.set(porcentajeLlanos, arregloLlanos);
+    var porcentajeBajadas = redondear(segundito.getBajadas() / formasTotales);
+    guardarEnHash(porcentajeBajadas, segundito, hashBajadas);
+    var porcentajeLlanos = redondear(segundito.getLlanos() / formasTotales);
+    guardarEnHash(porcentajeLlanos, segundito, hashLlanos);
+    var porcentajeSubidas = redondear(segundito.getSubida() / formasTotales);
+    guardarEnHash(porcentajeSubidas, segundito, hashSubidas);
 }
 //DARLE VUELTA A LOS IF*************
 function sucesiones(cancionCD, cancionCI, hash1, hash2, hash3) {
@@ -160,29 +164,43 @@ function sucesiones(cancionCD, cancionCI, hash1, hash2, hash3) {
 function comparar(n1, n2) {
     return n1.getSegundos() - n2.getSegundos();
 }
-function matchSegundos(hashBajadas, hashSubidas, hashLlanos) {
+//Funcion que obtiene la lista de un hash segun su key
+function obtenerLista(hash, key) {
+    return hash.get(key);
+}
+function matchSegundos() {
     var listasDelistas = [];
     var interseccion = [];
-    for (let i = 0; i < 1000; i++) {
-        var listaDeMatch = [];
-        var randomSubidas = redondear(getRandom(0, 100));
-        var randomllanos = redondear(getRandom(0, 100));
-        var randomBajadas = redondear(getRandom(0, 100));
-        listaDeMatch.push(hashSubidas.get(randomSubidas));
-        listaDeMatch.push(hashLlanos.get(randomllanos));
-        listaDeMatch.push(hashBajadas.get(randomBajadas));
-        interseccion = intersection(listaDeMatch[0], listaDeMatch[1]);
-        interseccion = intersection(interseccion, listaDeMatch[2]);
-        listasDelistas.push(interseccion);
+    for (let i = 0; i < 10; i++) {
+        var listaDeMatchS1 = [];
+        var listaDeMatchS2 = [];
+        var random = redondear(getRandom(0, 100));
+        var random2 = redondear(getRandom(0, 100));
+        var random3 = redondear(getRandom(0, 100));
+        listaDeMatchS1.push(obtenerLista(hashSubidasS1, random));
+        listaDeMatchS1.push(obtenerLista(hashLlanosS1, random2));
+        listaDeMatchS1.push(obtenerLista(hashBajadasS1, random3));
+        listaDeMatchS2.push(obtenerLista(hashSubidasS2, random));
+        listaDeMatchS2.push(obtenerLista(hashLlanosS2, random2));
+        listaDeMatchS2.push(obtenerLista(hashBajadasS2, random3));
+        listaDeMatchS1 = interseccionMultiple(listaDeMatchS1);
+        listaDeMatchS2 = interseccionMultiple(listaDeMatchS2);
+        console.log("****iNICIO******");
+        console.log(listaDeMatchS1);
+        console.log("****S2******");
+        console.log(listaDeMatchS2);
+        console.log("****FIN******");
+        //listasDelistas.push(interseccion);
     }
+    return interseccion;
+    /*
     interseccion = [];
-    for (let m = 0; m < listasDelistas.length; m++) {
-        if (listasDelistas[m].length > 0) {
-            interseccion = intersection(interseccion, listasDelistas[m]);
+    for(let m=0;m<listasDelistas.length;m++){
+        if(listasDelistas[m].length>0){
+            interseccion = intersection(interseccion,listasDelistas[m]);
         }
     }
-    console.log(interseccion);
-    return interseccion;
+    */
     /*
     var mapS1:{[k:number]:number[]}=mapear(sucesionS1);
     var listaDeS:number[][]=[];var listaEncoder:number[]=[];
@@ -202,31 +220,7 @@ function matchSegundos(hashBajadas, hashSubidas, hashLlanos) {
                 }
             }
         }
-    }
-    //console.log(sucesionS2);
-    //console.log(mapS1);
-    //console.log(listaDeS);
-    //generarCancion(listaEncoder); */
-}
-function intersection(array1, array2) {
-    if (array1.length > 0 && array2.length > 0) {
-        let result = [];
-        for (let i = 0; i < array1.length; i++) {
-            for (let j = 0; j < array2.length; j++) {
-                if (array1[i].getSegundos() === array2[j].getSegundos() && result.indexOf(array1[i]) === -1) {
-                    result.push(array1[i]);
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-    else {
-        if (array1.length > array2.length)
-            return array1;
-        else
-            return array2;
-    }
+    }*/
 }
 function generarCancion(listaEncoder) {
     listaEncoder.sort(comparar);
@@ -257,9 +251,7 @@ function funcionSeleccionada() {
             iniciarHash();
             sucesiones(rigthS1, leftS1, hashBajadasS1, hashSubidasS1, hashLlanosS1);
             sucesiones(rigthS2, leftS2, hashBajadasS2, hashSubidasS2, hashLlanosS2);
-            var segundosMatch = matchSegundos(hashBajadasS1, hashSubidasS1, hashLlanosS1);
-            matchSegundos(hashBajadasS2, hashSubidasS2, hashLlanosS2);
-            generarCancion(segundosMatch);
+            var segundosMatch = matchSegundos();
             limpiarHash();
             console.log("------------------------");
             break;
