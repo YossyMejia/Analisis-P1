@@ -28,6 +28,8 @@
     "typescript": "3.2.2"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^7.0.0-rc.3",
+    "@types/elasticsearch": "^5.0.32",
     "@types/node": "^7.10.5",
     "fft": "0.2.1",
     "fourier-transform": "1.1.2",

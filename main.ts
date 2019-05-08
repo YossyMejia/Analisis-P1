@@ -1,6 +1,7 @@
 import {Segundo} from './Segundo';
 import {myMap} from './myMapa';
 import {myHash} from './hashing';
+import {httpR} from './httpR';
 import * as fs from 'fs';
 // import { complex as fft } from 'fft';
 import * as WavEncoder from 'wav-encoder';
@@ -314,6 +315,8 @@ function funcionSeleccionada(){
             break;
         case "cmp":
             console.log("Funcion cmp");
+            var http = new httpR();
+            http.request();
             break;
         default:
             console.log("Nada");

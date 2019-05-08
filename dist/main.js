@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Segundo_1 = require("./Segundo");
 const myMapa_1 = require("./myMapa");
 const hashing_1 = require("./hashing");
+const httpR_1 = require("./httpR");
 const fs = require("fs");
 // import { complex as fft } from 'fft';
 const WavEncoder = require("wav-encoder");
@@ -298,9 +299,12 @@ function funcionSeleccionada() {
             break;
         case "cmp":
             console.log("Funcion cmp");
+            var http = new httpR_1.httpR();
+            http.request();
             break;
         default:
             console.log("Nada");
     }
 }
+//node dist/main.js umt s1.wav s2.wav
 //# sourceMappingURL=main.js.map
