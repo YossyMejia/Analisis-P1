@@ -2,6 +2,7 @@ import {Segundo} from './Segundo';
 import {myMap} from './myMapa';
 import {myHash} from './hashing';
 import {httpR} from './httpR';
+import {individuo} from './individuo';
 import * as fs from 'fs';
 // import { complex as fft } from 'fft';
 import * as WavEncoder from 'wav-encoder';
@@ -87,16 +88,7 @@ function sucesiones(cancionCD:number[],cancionCI:number[]):Segundo[]{
     valor1=Math.abs(cancionCD[0])*Math.abs(cancionCI[0]);
     valor2=Math.abs(cancionCD[punto])*Math.abs(cancionCI[punto]);
     while(punto<=tamanno){
-        if(samples==4000){
-            samples = 0;
-            segundo +=1;
-            /*var segundito = new Segundo(segundo,Math.round(tasaDeVariacionPorSegundo),subida,bajada,llano);
-            estructurarInformacion(segundito,hash1,hash2,hash3);*/
-            sucesion.push(new Segundo(segundo,Math.round(tasaDeVariacionPorSegundo),subida,bajada,llano));
-            console.log("Segundo: ",segundo," subidas: ",subida," llanos: ",llano," bajada: ",bajada," tasa de variacion total: ",tasaDeVariacionPorSegundo);
-            subida = llano = bajada = tasaDeVariacionPorSegundo = 0;
-        }
-        else{
+        if(samples!=4000){
             tasaDeVariacionPorSample = valor1-valor2;
             if(tasaDeVariacionPorSample>0.01)
                 subida++;
@@ -109,6 +101,15 @@ function sucesiones(cancionCD:number[],cancionCI:number[]):Segundo[]{
             punto+=11;
             valor2=Math.abs(cancionCD[punto])*Math.abs(cancionCI[punto]);
             samples++;
+        }
+        else{
+            samples = 0;
+            segundo +=1;
+            /*var segundito = new Segundo(segundo,Math.round(tasaDeVariacionPorSegundo),subida,bajada,llano);
+            estructurarInformacion(segundito,hash1,hash2,hash3);*/
+            sucesion.push(new Segundo(segundo,Math.round(tasaDeVariacionPorSegundo),subida,bajada,llano));
+            console.log("Segundo: ",segundo," subidas: ",subida," llanos: ",llano," bajada: ",bajada," tasa de variacion total: ",tasaDeVariacionPorSegundo);
+            subida = llano = bajada = tasaDeVariacionPorSegundo = 0;
         }
     }
     return sucesion;
@@ -296,6 +297,93 @@ function djFunction(){
     generarMix(matchDj());
 }
 
+/*------------------------------------------Genetico---------------------------------------------------------*/
+function cmpFunction(){
+    //var http = new httpR();
+    //http.request();
+    recorrerPuntos(rigthS1);
+}
+
+function asignarForma(formaAnterior:string,formaSiguiente:string,valor1:number,valor2:number,individuoObj:individuo){
+    //console.log("forma Ant:",formaAnterior," forma sig:",formaSiguiente);
+    if(Math.abs(valor1-valor2)<0.01){
+        if(formaAnterior=="SUBIDA")
+            individuoObj.añadirMeseta();
+        else(formaAnterior=="BAJADA")
+            individuoObj.añadirLlano();
+    }
+    else {
+        if(valor1<valor2){
+            if(formaSiguiente=="BAJADA")
+                individuoObj.añadirColina();
+            else if(formaAnterior=="LLANO")
+                individuoObj.añadirSubida();
+        }
+        else
+            if(formaAnterior=="LLANO")
+                individuoObj.añadirBajada();
+    }
+}
+
+function forma(valor1:number,valor2:number):string{
+    var forma:string;
+    if((Math.abs(valor1-valor2)<0.01))
+        forma = "LLANO";
+    else{
+        if(valor1<valor2)
+            forma = "SUBIDA";
+        else
+            forma = "BAJADA";
+    }
+    return forma;
+}
+
+function sucesion(cancionC:number[]){
+    var punto:number=11;
+    var valor1:number;var valor2:number;
+    var tamanno:number=cancionC.length-12;
+    var sucesion:individuo[]=[];
+    var segundo:number = 0;var samples:number = 0;
+    var formaAnterior:string="LLANO";var formaSiguiente:string;
+    var individuoObj = new individuo();
+    valor1=cancionC[0];
+    valor2=cancionC[punto];
+
+    while(punto<=tamanno){
+        if(samples!=4000){
+            formaSiguiente = forma(cancionC[punto],cancionC[punto+11]);
+            asignarForma(formaAnterior,formaSiguiente,valor1,valor2,individuoObj);
+            punto+=11;
+            samples++;
+        }
+        else{
+            samples = 0;
+            segundo +=1;
+            individuoObj.obtenerPorcentajes();
+            console.log(individuoObj);
+            sucesion.push(individuoObj);
+            individuoObj = new individuo();
+        }
+        formaAnterior = forma(valor1,valor2);
+        valor1 = valor2;
+        valor2 = cancionC[punto];
+    }
+}
+
+function recorrerPuntos(canal:number[]){
+    var segundos = sucesion(rigthS1);
+    var objIndividuo = new individuo();//canal.slice(0,4));
+    var objJson = JSON.parse(JSON.stringify(objIndividuo));
+    
+    //var objJson2 = objJson;
+    //var contenido:string[]=[];
+    //contenido.push(objJson);
+    //contenido.push(objJson);
+    //var json = JSON.stringify(contenido);
+    //var http = new httpR();
+    //http.request(objJson);
+}
+
 function funcionSeleccionada(){
     switch(parametros[0]){
         case "mt":
@@ -315,8 +403,7 @@ function funcionSeleccionada(){
             break;
         case "cmp":
             console.log("Funcion cmp");
-            var http = new httpR();
-            http.request();
+            cmpFunction();
             break;
         default:
             console.log("Nada");
